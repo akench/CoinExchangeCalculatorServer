@@ -1,28 +1,31 @@
 package com.atharvak.coinexchangecalculatorserver.utils;
 
+import com.atharvak.coinexchangecalculatorserver.config.CoinExchangeCalculatorConfig;
 import com.atharvak.coinexchangecalculatorserver.models.MoneyPouch;
 import com.google.common.collect.ImmutableMap;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 
 import java.util.HashMap;
 import java.util.Map;
 
 @RunWith(SpringJUnit4ClassRunner.class)
-//@ContextConfiguration(classes = CoinExchangeCalculatorConfig.class)
+@ContextConfiguration(classes = CoinExchangeCalculatorConfig.class)
 public class CoinExchangerTest {
 
-//    @Autowired
-//    private CoinExchanger coinExchanger;
+    @Autowired
+    private CoinExchanger coinExchanger;
 
     @Test(expected = IllegalArgumentException.class)
     public void emptyPouches() {
         final MoneyPouch mpGiver = new MoneyPouch();
         final MoneyPouch mpReceiver = new MoneyPouch();
 
-        CoinExchanger.giveMoney(1, mpGiver, mpReceiver);
+        coinExchanger.giveMoney(1, mpGiver, mpReceiver);
     }
 
     @Test(expected = IllegalArgumentException.class)
@@ -35,7 +38,7 @@ public class CoinExchangerTest {
                 )
         );
 
-        CoinExchanger.giveMoney(2, mpGiver, mpReceiver);
+        coinExchanger.giveMoney(2, mpGiver, mpReceiver);
     }
 
     @Test
@@ -47,7 +50,7 @@ public class CoinExchangerTest {
         );
         final MoneyPouch mpReceiver = new MoneyPouch();
 
-        final MoneyPouch[] res = CoinExchanger.giveMoney(10, mpGiver, mpReceiver);
+        final MoneyPouch[] res = coinExchanger.giveMoney(10, mpGiver, mpReceiver);
 
         verifyMoneyPouch(
                 ImmutableMap.of(10, 1),
@@ -68,7 +71,7 @@ public class CoinExchangerTest {
         mpReceiver.changeCoinFreq(10, 2);
         mpReceiver.changeCoinFreq(1, 20);
 
-        CoinExchanger.giveMoney(-1, mpGiver, mpReceiver);
+        coinExchanger.giveMoney(-1, mpGiver, mpReceiver);
     }
 
     @Test
@@ -82,7 +85,7 @@ public class CoinExchangerTest {
         mpReceiver.changeCoinFreq(10, 2);
         mpReceiver.changeCoinFreq(1, 20);
 
-        final MoneyPouch[] res = CoinExchanger.giveMoney(0, mpGiver, mpReceiver);
+        final MoneyPouch[] res = coinExchanger.giveMoney(0, mpGiver, mpReceiver);
         verifyMoneyPouch(ImmutableMap.of(), res[0]);
         verifyMoneyPouch(ImmutableMap.of(), res[1]);
     }
@@ -98,7 +101,7 @@ public class CoinExchangerTest {
         mpReceiver.changeCoinFreq(10, 2);
         mpReceiver.changeCoinFreq(1, 20);
 
-        final MoneyPouch[] res = CoinExchanger.giveMoney(51, mpGiver, mpReceiver);
+        final MoneyPouch[] res = coinExchanger.giveMoney(51, mpGiver, mpReceiver);
 
         verifyMoneyPouch(
                 ImmutableMap.of(100, 1),
@@ -123,7 +126,7 @@ public class CoinExchangerTest {
 
         mpReceiver.changeCoinFreq(5, 2);
 
-        final MoneyPouch[] res = CoinExchanger.giveMoney(5, mpGiver, mpReceiver);
+        final MoneyPouch[] res = coinExchanger.giveMoney(5, mpGiver, mpReceiver);
 
         verifyMoneyPouch(
                 ImmutableMap.of(10, 1),
@@ -147,15 +150,15 @@ public class CoinExchangerTest {
         mpReceiver.changeCoinFreq(10, 2);
         mpReceiver.changeCoinFreq(1, 20);
 
-        CoinExchanger.giveMoney(19, mpGiver, mpReceiver);
+        coinExchanger.giveMoney(19, mpGiver, mpReceiver);
     }
 
     private void verifyMoneyPouch(final Map<Integer, Integer> expected, final MoneyPouch actualPouch) {
 
         final Map<Integer, Integer> actualMap = new HashMap<>();
-        for (int i = 0; i < actualPouch.denoms.size(); i++) {
-            final int denom = actualPouch.denoms.get(i);
-            final int freq = actualPouch.freqs.get(i);
+        for (int i = 0; i < actualPouch.getDenoms().size(); i++) {
+            final int denom = actualPouch.getDenoms().get(i);
+            final int freq = actualPouch.getFreqs().get(i);
 
             actualMap.put(denom, freq);
         }

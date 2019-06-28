@@ -25,9 +25,9 @@ public class GiverAndReceiverCoins {
 
     private List<CoinFrequency> pouchToCoinFrequencies(final MoneyPouch mp) {
         final List<CoinFrequency> coinFrequencies = new ArrayList<>();
-        for(int i = 0; i < mp.denoms.size(); i++) {
-            final int denom = mp.denoms.get(i);
-            final int freq = mp.denoms.get(i);
+        for(int i = 0; i < mp.getDenoms().size(); i++) {
+            final int denom = mp.getDenoms().get(i);
+            final int freq = mp.getFreqs().get(i);
             coinFrequencies.add(new CoinFrequency(denom, freq));
         }
 

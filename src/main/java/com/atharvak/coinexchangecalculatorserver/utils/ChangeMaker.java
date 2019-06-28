@@ -7,46 +7,42 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * Class to calculate how to make change for an amount using
+ * a limited number of coins in a money pouch.
+ */
 public class ChangeMaker {
 
-    public static void main(String[] args) {
-
-        List<Integer> denoms = new ArrayList<>();
-        denoms.add(1);
-        denoms.add(2);
-        denoms.add(5);
-
-        List<Integer> freqs = new ArrayList<>();
-        freqs.add(1);
-        freqs.add(100);
-        freqs.add(4);
-
-        MoneyPouch mp = new MoneyPouch(denoms, freqs);
-
-        MoneyPouch resPouch = getMinCoinsLimited(10001, mp);
-
-
-        System.out.println("bal: " + resPouch.getBalance());
-    }
-
-    // wrapper method
-    static MoneyPouch getMinCoinsLimited(int amount, MoneyPouch mp) {
-        CoinMapTuple tuple = getMinCoinsLimited(amount, 0, mp.denoms, mp.freqs);
+    /**
+     * Get a money pouch representing the best way (min number of coins)
+     * to make change for an amount using an input money pouch.
+     * @param amount make change for this amount
+     * @param mp available coins in money pouch
+     * @return money pouch showing how to make change
+     */
+    public MoneyPouch getMinCoinsLimited(final int amount, final MoneyPouch mp) {
+        final CoinMapTuple tuple = getMinCoinsLimited(amount, 0, mp.getDenoms(), mp.getFreqs());
         return new MoneyPouch(tuple.map);
     }
 
-    /*
-    Gets the coins needed to make change for an amount with a limited number
-    of coins for each denomination
 
-    stores which coins are needed and how many of them, in a hashmap
-
-    return a tuple of the min coins and the hashmap of coin freqs
+    /**
+     * Gets the coins needed to make change for an amount with a limited number
+     * of coins for each denomination
+     *
+     * stores which coins are needed and how many of them, in a hashmap
+     * return a tuple of the min coins and the hashmap of coin freqs
+     *
+     * @param amount amount to make change
+     * @param denomIndex which denomination we are currently procecssing
+     * @param denoms list of denomination
+     * @param freqs number of coins for that denomination
+     * @return minimum number of coins, and hashmap of denom->freq
      */
-    private static CoinMapTuple getMinCoinsLimited(int amount,
-                                                   int denomIndex,
-                                                   List<Integer> denoms,
-                                                   List<Integer> freqs) {
+    private CoinMapTuple getMinCoinsLimited(final int amount,
+                                            final int denomIndex,
+                                            final List<Integer> denoms,
+                                            final List<Integer> freqs) {
         // base case
         if (amount <= 0)
             return new CoinMapTuple();
@@ -58,11 +54,11 @@ public class ChangeMaker {
         CoinMapTuple minNotPicked;
         // pick
         // if can pick
-        int denom = denoms.get(denomIndex);
+        final int denom = denoms.get(denomIndex);
         if (amount - denom >= 0 && freqs.get(denomIndex) > 0) {
 
             // make a new list with that frequency decremented
-            List<Integer> newFreqs = new ArrayList<>(freqs);
+            final List<Integer> newFreqs = new ArrayList<>(freqs);
             newFreqs.set(denomIndex, newFreqs.get(denomIndex) - 1); //decrement
 
             // recursive call with a smaller amount
@@ -80,10 +76,10 @@ public class ChangeMaker {
         if (minPicked.numCoins < minNotPicked.numCoins) {
 
             // get value of picked coin
-            int coinVal = denoms.get(denomIndex);
+            final int coinVal = denoms.get(denomIndex);
 
             // frequency of that value in the hashmap
-            int freq = minPicked.map.containsKey(coinVal) ? minPicked.map.get(coinVal) : 0;
+            final int freq = minPicked.map.getOrDefault(coinVal, 0);
 
             // increment that frequency because we just picked this coin again
             minPicked.map.put(coinVal, freq + 1);
@@ -94,52 +90,23 @@ public class ChangeMaker {
         else {
             return minNotPicked;
         }
-
     }
 
-
-    static class CoinMapTuple {
+    /**
+     * Simple tuple class
+     */
+    class CoinMapTuple {
         int numCoins;
         Map<Integer, Integer> map;
 
-        public CoinMapTuple() {
+        CoinMapTuple() {
             numCoins = 0;
             map = new HashMap<>();
         }
 
-        public CoinMapTuple(int n, Map<Integer, Integer> m) {
+        CoinMapTuple(int n, Map<Integer, Integer> m) {
             numCoins = n;
             map = m;
         }
-    }
-
-
-////////////////////////////////////////////////////////////////////////
-
-    private static int getMinCoinsBasic(int amount, ArrayList<Integer> denoms) {
-
-        // base case
-        if (amount <= 0)
-            return 0;
-
-        if (denoms.size() == 0)
-            return Integer.MAX_VALUE - 1;
-
-        int minPicked = Integer.MAX_VALUE - 1;
-        int minNotPicked;
-        // pick
-        // if can pick
-        int denom = denoms.get(0);
-        if (amount - denom >= 0) {
-            minPicked = 1 + getMinCoinsBasic(amount - denom, denoms);
-        }
-
-        // not pick
-        ArrayList<Integer> newDenoms = new ArrayList<>(denoms);
-        newDenoms.remove(0);
-        minNotPicked = getMinCoinsBasic(amount, newDenoms);
-
-        // take min of both options
-        return Math.min(minNotPicked, minPicked);
     }
 }

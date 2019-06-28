@@ -1,33 +1,33 @@
 package com.atharvak.coinexchangecalculatorserver.models;
 
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+
 import java.util.*;
 
+/**
+ * Represents a bunch of coins as one unit.
+ */
+@Getter
+@EqualsAndHashCode
 public class MoneyPouch {
-    public List<Integer> denoms;
-    public List<Integer> freqs;
+    private List<Integer> denoms;
+    private List<Integer> freqs;
 
     public MoneyPouch() {
         denoms = new ArrayList<>();
         freqs = new ArrayList<>();
     }
 
-    public MoneyPouch(List<Integer> d, List<Integer> f) {
-
-        if (d.size() != f.size())
-            throw new IllegalArgumentException();
-
-        denoms = d;
-        freqs = f;
-    }
-
-    public MoneyPouch(List<CoinFrequency> coinFrequencies) {
+    public MoneyPouch(final List<CoinFrequency> coinFrequencies) {
+        this();
         for(CoinFrequency coinFrequency : coinFrequencies) {
             denoms.add(coinFrequency.getDenom());
             freqs.add(coinFrequency.getFreq());
         }
     }
 
-    public MoneyPouch(Map<Integer, Integer> map) {
+    public MoneyPouch(final Map<Integer, Integer> map) {
         this();
         for (int denom : map.keySet()) {
             denoms.add(denom);
@@ -35,6 +35,10 @@ public class MoneyPouch {
         }
     }
 
+    /**
+     * Gets balance in money pouch
+     * @return balance
+     */
     public int getBalance() {
         int bal = 0;
         for (int i = 0; i < denoms.size(); i++) {
@@ -43,7 +47,12 @@ public class MoneyPouch {
         return bal;
     }
 
-    // diff can be positive or negative
+    /**
+     * Increases or decreases the frequency of a coin denomination
+     *
+     * @param denom denomination to modify
+     * @param delta how much to inc or dec frequency by
+     */
     public void changeCoinFreq(int denom, int delta) {
         int coinIndex = denoms.indexOf(denom);
 
@@ -65,21 +74,38 @@ public class MoneyPouch {
         // if trying to remove coin, and coin doesn't exist, don't do anything
     }
 
-    public void transferTo(MoneyPouch to, MoneyPouch transferAmount) {
+    /**
+     * Transfer some money from one money pouch to another
+     * @param to transfer to this pouch
+     * @param transferAmount amount to transfer
+     */
+    public void transferTo(final MoneyPouch to, final MoneyPouch transferAmount) {
         to.add(transferAmount);
         this.subtract(transferAmount);
     }
 
-    private void add(MoneyPouch mp) {
+    /**
+     * Add the contents of mp to this pouch
+     * @param mp pouch to add
+     */
+    private void add(final MoneyPouch mp) {
         this.addOrRemove(mp, 1);
     }
 
-    private void subtract(MoneyPouch mp) {
+    /**
+     * Subtract the contents of mp from this pouch
+     * @param mp pouch to subtract
+     */
+    private void subtract(final MoneyPouch mp) {
         this.addOrRemove(mp, -1);
     }
 
-    // TODO May not work if adding and removing itself
-    private void addOrRemove(MoneyPouch mp, int multiplier) {
+    /**
+     * Helper function to add or remove coins based on a multiplier
+     * @param mp target pouch
+     * @param multiplier 1 or -1 (add or remove)
+     */
+    private void addOrRemove(final MoneyPouch mp, final int multiplier) {
 
         if(mp == null)
             return;
@@ -111,12 +137,17 @@ public class MoneyPouch {
 
     10 20 30
      */
+
+    /**
+     *
+     * @return
+     */
     public Set<MoneyPouch> getSubsets() {
 
-        Set<MoneyPouch> set = new HashSet<>();
+        final Set<MoneyPouch> set = new HashSet<>();
 
         // generate all frequency combinations for this money pouch
-        Set<List<Integer>> allFreqCombinations = this.genAllFrequencyCombinations();
+        final Set<List<Integer>> allFreqCombinations = this.genAllFrequencyCombinations();
 
         // 2^numelements combinations
         int numCombinations = (1 << denoms.size());
@@ -125,7 +156,7 @@ public class MoneyPouch {
             // list of indices corresponding to coin denoms in this pouch
             // the current subset of coins will only contains contain coins
             // from these indices
-            List<Integer> usingIndices = new ArrayList<>();
+            final List<Integer> usingIndices = new ArrayList<>();
 
             int mask = 1;
             for (int i = 0; i < denoms.size(); i++) {
@@ -140,14 +171,14 @@ public class MoneyPouch {
             // must create a new money pouch for every combination of frequencies using
             // these coins, and add to set...
             // the coins that are used are index by usingIndices array
-            for (List<Integer> combination : getFreqCombsForIndices(allFreqCombinations, usingIndices)) {
+            for (final List<Integer> combination : getFreqCombsForIndices(allFreqCombinations, usingIndices)) {
                 // represents a money pouch with a specific frequency of coins which changes each loop
-                MoneyPouch mp = new MoneyPouch();
+                final MoneyPouch mp = new MoneyPouch();
 
                 for (int i = 0; i < usingIndices.size(); i++) {
                     // get the denomination at one index, and the frequency at that index
                     // in the combination
-                    int denomIndex = usingIndices.get(i);
+                    final int denomIndex = usingIndices.get(i);
                     mp.changeCoinFreq(denoms.get(denomIndex), combination.get(i));
                 }
 
@@ -162,18 +193,18 @@ public class MoneyPouch {
     Gets a combination of frequency values only for given indices
     Used when needing to get all combinations of freq values for a subset
      */
-    private Set<List<Integer>> getFreqCombsForIndices(Set<List<Integer>> allFreqCombinations,
-                                                      List<Integer> indices) {
+    private Set<List<Integer>> getFreqCombsForIndices(final Set<List<Integer>> allFreqCombinations,
+                                                      final List<Integer> indices) {
 
         Collections.sort(indices); // same order everytime
-        Set<List<Integer>> set = new HashSet<>();
+        final Set<List<Integer>> set = new HashSet<>();
 
         // for every combination, get the values at the given indices
-        for (List<Integer> combination : allFreqCombinations) {
+        for (final List<Integer> combination : allFreqCombinations) {
 
             // add the combination of values at those indices
-            List<Integer> freqs = new ArrayList<>();
-            for (int i : indices) {
+            final List<Integer> freqs = new ArrayList<>();
+            for (final int i : indices) {
                 freqs.add(combination.get(i));
             }
             set.add(freqs);
@@ -188,7 +219,7 @@ public class MoneyPouch {
      * @return set of list of frequency values, corresponds to the coin denominations list
      */
     private Set<List<Integer>> genAllFrequencyCombinations() {
-        Set<List<Integer>> allFreqCombinations = new HashSet<>();
+        final Set<List<Integer>> allFreqCombinations = new HashSet<>();
         genAllFrequencyCombinations(allFreqCombinations, new ArrayList<>(), 0);
         return allFreqCombinations;
     }
@@ -204,9 +235,9 @@ public class MoneyPouch {
     111,112,113,114,121,122,123,124,131,132,133,134,
     211,212,213,214,221,222,223,224,231,232,233,234
      */
-    private void genAllFrequencyCombinations(Set<List<Integer>> allFreqCombinations,
-                                             List<Integer> prevState,
-                                             int freqIndex) {
+    private void genAllFrequencyCombinations(final Set<List<Integer>> allFreqCombinations,
+                                             final List<Integer> prevState,
+                                             final int freqIndex) {
         // base case, no more frequencies to add
         if (freqIndex >= freqs.size()) {
             allFreqCombinations.add(prevState);
@@ -215,26 +246,12 @@ public class MoneyPouch {
 
         // for every number between 1 and that frequency
         for (int n = 1; n <= freqs.get(freqIndex); n++) {
-            List<Integer> state = new ArrayList<>(prevState);
+            final List<Integer> state = new ArrayList<>(prevState);
             state.add(n);
 
             // recursive call with one possible frequency added
             genAllFrequencyCombinations(allFreqCombinations, state, freqIndex + 1);
         }
-    }
-
-    @Override
-    public int hashCode() {
-        return getBalance();
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (o == null || !(o instanceof MoneyPouch))
-            return false;
-        MoneyPouch mp = (MoneyPouch) o;
-        // denoms and freqs list must be equal
-        return this.denoms.equals(mp.denoms) && this.freqs.equals(mp.freqs);
     }
 
     @Override
@@ -252,25 +269,15 @@ public class MoneyPouch {
     }
 
 
+    /**
+     * Number of coins in this pouch
+     * @return size int
+     */
     public int size() {
         int sum = 0;
         for (int f : freqs) {
             sum += f;
         }
         return sum;
-    }
-
-
-    public static void main(String[] args) {
-
-        MoneyPouch mp = new MoneyPouch();
-        mp.changeCoinFreq(1, 1);
-        mp.changeCoinFreq(2, 2);
-        mp.changeCoinFreq(3, 3);
-
-        for (MoneyPouch m : mp.getSubsets()) {
-            System.out.println(m);
-        }
-
     }
 }
