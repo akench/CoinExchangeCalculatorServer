@@ -68,7 +68,13 @@ public class CoinExchanger {
         money pouch rep. coins B must give A
 
     */
-    public static MoneyPouch[] giveMoney(int transferAmount, MoneyPouch pouchA, MoneyPouch pouchB) {
+    public static MoneyPouch[] giveMoney(int transferAmount, MoneyPouch pouchA, MoneyPouch pouchB) throws IllegalArgumentException {
+
+        if (transferAmount < 0) {
+            throw new IllegalArgumentException("transfer amount cannot be negative");
+        } else if (transferAmount == 0) {
+            return new MoneyPouch[]{new MoneyPouch(), new MoneyPouch()};
+        }
 
         int targetBalanceB = transferAmount + pouchB.getBalance();
 
@@ -80,7 +86,7 @@ public class CoinExchanger {
 
         // able to make change without transfer
         if (changeNoTransfer.size() > 0) {
-            return new MoneyPouch[]{ changeNoTransfer, new MoneyPouch() };
+            return new MoneyPouch[]{changeNoTransfer, new MoneyPouch()};
         }
 
         // we need to transfer stuff from B to A, to be able to make the change
@@ -94,7 +100,7 @@ public class CoinExchanger {
 
             if (transferToB.size() > 0) {
                 // can make change after transferring... success
-                return new MoneyPouch[]{ transferToB, transferToA };
+                return new MoneyPouch[]{transferToB, transferToA};
             } else {
                 // failure, must revert the transfer and try another subset of B next loop
                 pouchA.transferTo(pouchB, transferToA);
@@ -102,7 +108,7 @@ public class CoinExchanger {
         }
 
         // no sol. found using all available subsets
-        return null;
+        throw new IllegalArgumentException("Unable to exchange the specified amount");
     }
 
 }

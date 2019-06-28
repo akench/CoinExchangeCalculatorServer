@@ -23,10 +23,10 @@ public class ChangeMaker {
 
         MoneyPouch mp = new MoneyPouch(denoms, freqs);
 
-        MoneyPouch resPouch = getMinCoinsLimited(101, mp);
+        MoneyPouch resPouch = getMinCoinsLimited(10001, mp);
 
 
-        System.out.println("size: " + resPouch.size());
+        System.out.println("bal: " + resPouch.getBalance());
     }
 
     // wrapper method
