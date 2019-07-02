@@ -5,18 +5,21 @@ import com.atharvak.coinexchangecalculatorserver.models.MoneyPouch;
 import com.atharvak.coinexchangecalculatorserver.utils.CoinExchanger;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
 
+// giverAndReceiverCoins={"transferAmount":51,"giverCoins":[{"denom":100,"freq":1}],"receiverCoins":[{"denom":20,"freq":2},{"denom":10,"freq":2},{"denom":1,"freq":10}]}
 @RestController
 public class CoinChangeCalculatorController {
 
     @Autowired
     private CoinExchanger coinExchanger;
 
+    @CrossOrigin
     @RequestMapping("/giveMoney")
     public GiverAndReceiverCoins giverAndReceiverCoins(
             @RequestParam(value="giverAndReceiverCoins", defaultValue = "{}")
